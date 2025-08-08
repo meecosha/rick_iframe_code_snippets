@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Embeddable Code Snippet</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #0f172a;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #60a5fa;
+      --border: #1f2937;
+      --btn: #111827;
+      --btn-hover: #0b1220;
+      --radius: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+              "Courier New", monospace;
+    }
+    html, body { margin:0; padding:0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, sans-serif; }
+    .wrap {
+      box-sizing: border-box;
+      padding: 14px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,0));
+    }
+    .title {
+      font-size: 14px;
+      color: var(--muted);
+      letter-spacing: .2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 70%;
+    }
+    .actions { display: flex; gap: 8px; }
+    button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--btn);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    button:hover { background: var(--btn-hover); }
+    .code {
+      position: relative;
+      overflow: auto;
+      max-height: 70vh;
+    }
+    pre {
+      margin: 0;
+      padding: 14px 16px;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre; /* toggled to pre-wrap when wrap=1 */
+      tab-size: 2;
+      -moz-tab-size: 2;
+    }
+    .footer {
+      padding: 10px 12px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .badge { color: var(--accent); }
+    /* Optional line numbers (simple) */
+    .linenos { counter-reset: line; }
+    .linenos code {
+      display: block;
+    }
+    .linenos code span {
+      display: block;
+      padding-left: 0.5rem;
+    }
+    .linenos code span::before {
+      counter-increment: line;
+      content: counter(line);
+      display: inline-block;
+      width: 2rem;
+      margin-right: 0.75rem;
+      text-align: right;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" role="region" aria-label="Code snippet">
+      <div class="toolbar">
+        <div class="title" id="snippet-title">Code snippet</div>
+        <div class="actions">
+          <button id="wrap-btn" type="button" title="Toggle line wrap">Wrap</button>
+          <button id="copy-btn" type="button" title="Copy code to clipboard">Copy</button>
+        </div>
+      </div>
+      <div class="code">
+        <pre id="code-pre"><code id="code-block"></code></pre>
+      </div>
+      <div class="footer">
+        <span id="lang-badge" class="badge"></span>
+        <span id="status" aria-live="polite"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Put your code inside this textarea to avoid escaping issues -->
+  <textarea id="snippet" style="display:none;">
+// Paste your code here. This placeholder shows how to use it.
+function hello(name) {
+  console.log(`Hello, ${name}!`);
+}
+hello("world");
+  </textarea>
+
+  <script>
+    // Tiny helpers
+    const qs = (s, el=document) => el.querySelector(s);
+    const params = new URLSearchParams(location.search);
+    const title = params.get("title") || "Code snippet";
+    const lang = params.get("lang") || ""; // e.g. "javascript", "bash", "python"
+    const wrap = params.get("wrap"); // "1" to pre-wrap
+    const lines = params.get("lines"); // "1" to show simple line numbers
+
+    const titleEl = qs("#snippet-title");
+    const codeBlock = qs("#code-block");
+    const codePre = qs("#code-pre");
+    const copyBtn = qs("#copy-btn");
+    const wrapBtn = qs("#wrap-btn");
+    const statusEl = qs("#status");
+    const badge = qs("#lang-badge");
+
+    titleEl.textContent = title;
+    badge.textContent = lang ? lang : "";
+
+    // Load code from hidden textarea
+    const raw = qs("#snippet").value.replace(/^\n/, "");
+    codeBlock.textContent = raw;
+
+    if (lang) {
+      codeBlock.setAttribute("data-lang", lang);
+      codeBlock.classList.add("language-" + lang);
+    }
+
+    // Apply wrap preference
+    let isWrapped = wrap === "1";
+    const applyWrap = () => {
+      codePre.style.whiteSpace = isWrapped ? "pre-wrap" : "pre";
+      wrapBtn.textContent = isWrapped ? "No-wrap" : "Wrap";
+    };
+    applyWrap();
+
+    // Optional primitive "line numbers"
+    if (lines === "1") {
+      codePre.classList.add("linenos");
+      // split into spans
+      const text = codeBlock.textContent;
+      const sp = text.split("\n").map(line => `<span>${line.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</span>`).join("\n");
+      codeBlock.innerHTML = sp;
+    }
+
+    // Copy to clipboard
+    copyBtn.addEventListener("click", async () => {
+      try {
+        const text = lines === "1"
+          ? Array.from(codeBlock.querySelectorAll("span")).map(s => s.textContent).join("\n")
+          : codeBlock.textContent;
+        await navigator.clipboard.writeText(text);
+        statusEl.textContent = "Copied!";
+        setTimeout(() => (statusEl.textContent = ""), 1600);
+      } catch (e) {
+        statusEl.textContent = "Copy failed";
+        setTimeout(() => (statusEl.textContent = ""), 2000);
+      }
+    });
+
+    // Toggle wrap
+    wrapBtn.addEventListener("click", () => {
+      isWrapped = !isWrapped;
+      applyWrap();
+    });
+
+    // Resize hack for iframes (post height to parent). Parent can listen to 'message' to adjust height.
+    const postHeight = () => {
+      const h = document.body.scrollHeight;
+      parent.postMessage({ type: "snippet:height", height: h }, "*");
+    };
+    // initial + after possible fonts load
+    window.addEventListener("load", postHeight);
+    new ResizeObserver(postHeight).observe(document.body);
+  </script>
+</body>
+</html>
