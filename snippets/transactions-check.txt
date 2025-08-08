@@ -1,0 +1,44 @@
+POST /transactions/avtoraketa/check
+Host: exchange.rick.ai
+Content-Type: application/json
+
+[
+	{
+		"transaction_id": "23",
+		"user_id": "8070",
+		"client_id": "1599344136.1453219348",
+		"deal_created_at": 1457452914,
+		"deal_updated_at": 1457453117,
+		"status": "Оплачен",
+		"data_source": "test",
+		"revenue": 1290,
+		"items": [
+			{
+				"name": "Подписка",
+				"sku": "32354",
+				"price": "1290",
+				"quantity": 1,
+				"category": "Подписка"
+			}
+		]
+	},
+	{
+		"transaction_id": "123456",
+		"user_id": "8070",
+		"client_id": "1599344136.1453219348",
+		"deal_created_at": 1457452914,
+		"deal_updated_at": 1457453117,
+		"status": "trial",
+		"data_source": "test",
+		"revenue": 299,
+		"offline": true,
+		"items": [
+			{
+				"name": "Suit",
+				"sku": "0371ta1x1oupm14",
+				"price": "299",
+				"quantity": 1
+			}
+		]
+	}
+]
