@@ -214,19 +214,42 @@ Content-Type: application/json
     }
 
     // Copy to clipboard
-    copyBtn.addEventListener("click", async () => {
-      try {
-        const text = lines === "1"
-          ? Array.from(codeBlock.querySelectorAll("span")).map(s => s.textContent).join("\n")
-          : codeBlock.textContent;
-        await navigator.clipboard.writeText(text);
-        statusEl.textContent = "Copied!";
-        setTimeout(() => (statusEl.textContent = ""), 1600);
-      } catch (e) {
-        statusEl.textContent = "Copy failed";
-        setTimeout(() => (statusEl.textContent = ""), 2000);
-      }
-    });
+copyBtn.addEventListener("click", async () => {
+  const getText = () =>
+    (lines === "1"
+      ? Array.from(codeBlock.querySelectorAll("span")).map(s => s.textContent).join("\n")
+      : codeBlock.textContent);
+
+  const text = getText();
+
+  // Try modern API first
+  try {
+    await navigator.clipboard.writeText(text);
+    statusEl.textContent = "Copied!";
+    setTimeout(() => (statusEl.textContent = ""), 1600);
+    return;
+  } catch (_) {
+    // fall through
+  }
+
+  // Fallback: hidden textarea + execCommand
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    statusEl.textContent = "Copied!";
+    setTimeout(() => (statusEl.textContent = ""), 1600);
+  } catch (e) {
+    statusEl.textContent = "Copy failed";
+    setTimeout(() => (statusEl.textContent = ""), 2000);
+  }
+});
 
     // Toggle wrap
     wrapBtn.addEventListener("click", () => {
