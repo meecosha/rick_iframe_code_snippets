@@ -155,5 +155,45 @@ Content-Type: application/json
     window.addEventListener("load", postHeight);
     new ResizeObserver(postHeight).observe(document.body);
   </script>
+  <script>
+  // Enable with ?fit=1 in the URL if you want this behavior
+  (function fitToViewport() {
+    const params = new URLSearchParams(location.search);
+    if (params.get("fit") !== "1") return;
+
+    const root = document.body;          // scale the whole page
+    const container = document.documentElement;
+
+    function applyFit() {
+      // Total natural content height
+      const contentHeight = root.scrollHeight;
+      const contentWidth  = root.scrollWidth;
+
+      // Viewport (iframe) size granted by parent
+      const vh = window.innerHeight || 0;
+      const vw = window.innerWidth  || 0;
+
+      // Compute scale to fit without cropping; never upscale
+      const scaleH = vh > 0 ? vh / contentHeight : 1;
+      const scaleW = vw > 0 ? vw / contentWidth  : 1;
+      const scale  = Math.min(1, scaleH, scaleW);
+
+      // Prevent internal scrollbars
+      container.style.overflow = "hidden";
+      root.style.overflow = "hidden";
+
+      // Scale from top-left and stretch layout width so lines don’t wrap weirdly
+      root.style.transform = `scale(${scale})`;
+      root.style.transformOrigin = "top left";
+      root.style.width = (100 / scale) + "%";
+      root.style.height = (100 / scale) + "%";
+    }
+
+    // Re-fit on viewport changes and content changes
+    window.addEventListener("resize", applyFit);
+    new ResizeObserver(applyFit).observe(document.body);
+    applyFit();
+  })();
+</script>
 </body>
 </html>
