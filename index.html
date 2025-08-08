@@ -114,8 +114,26 @@ Content-Type: application/json
     const copyBtn   = qs("#copy-btn");
 
     // Load code
-    const raw = qs("#snippet").value.replace(/^\n/, "");
-    codeBlock.textContent = raw;
+    // NEW: try ?src=<filename> under /snippets, else fallback to <textarea>
+    const params = new URLSearchParams(location.search);
+    const src = params.get("src"); // e.g. src=post-request.txt
+    
+    async function loadCode() {
+      if (src) {
+        const url = `./snippets/${src}`;
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error(`Failed to load ${url}`);
+        return await res.text();
+      }
+      // fallback to inline textarea
+      return qs("#snippet").value.replace(/^\n/, "");
+    }
+    
+    loadCode().then(text => {
+      codeBlock.textContent = text;
+    }).catch(err => {
+      codeBlock.textContent = `/* failed to load snippet: ${err.message} */`;
+    });
 
     // Copy handler
     copyBtn.addEventListener("click", async () => {
