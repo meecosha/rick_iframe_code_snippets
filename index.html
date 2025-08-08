@@ -6,19 +6,23 @@
   <title>Code</title>
   <style>
     :root{
-      --page-bg: transparent; /* inherit from parent page */
-      --code-bg:#0f172a;
-      --code-text:#e5e7eb;
-      --btn-bg:rgba(255,255,255,0.9);
-      --btn-hover:rgba(255,255,255,1);
-      --btn-text:#0b1220;
+      --page-bg: transparent;
+      --code-bg:#ffffff;
+      --code-text:#181A24;
+      --btn-bg:rgba(24,26,36,0.9);
+      --btn-hover:rgba(24,26,36,1);
+      --btn-text:#ffffff;
       --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
     }
 
-    html,body{margin:0;padding:0;background:var(--page-bg);color:var(--code-text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
+    html,body{
+      margin:0;padding:0;
+      background:var(--page-bg);
+      color:var(--code-text);
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    }
     .wrap{padding:0;margin:0;}
-    
-    /* Code container with floating button */
+
     .code-surface{
       position:relative;
       background:var(--code-bg);
@@ -36,6 +40,7 @@
       tab-size:2;
       -moz-tab-size:2;
     }
+
     /* Floating copy button */
     #copy-btn{
       position:absolute;
@@ -53,14 +58,6 @@
       transition:background .15s ease;
     }
     #copy-btn:hover{background:var(--btn-hover);}
-    /* Status text (small, bottom-right inside code) */
-    #status{
-      position:absolute;
-      bottom:6px;
-      right:10px;
-      font-size:11px;
-      color:#93e1ab;
-    }
   </style>
 </head>
 <body>
@@ -68,11 +65,9 @@
     <div class="code-surface">
       <button id="copy-btn" type="button" title="Copy code to clipboard">Copy</button>
       <pre id="code-pre"><code id="code-block"></code></pre>
-      <span id="status" aria-live="polite"></span>
     </div>
   </div>
 
-  <!-- Code content -->
   <textarea id="snippet" style="display:none;">
 POST /transactions/examplecompany/create
 Host: exchange.rick.ai
@@ -116,7 +111,6 @@ Content-Type: application/json
   <script>
     const qs = (s, el=document) => el.querySelector(s);
     const codeBlock = qs("#code-block");
-    const statusEl  = qs("#status");
     const copyBtn   = qs("#copy-btn");
 
     // Load code
@@ -126,27 +120,30 @@ Content-Type: application/json
     // Copy handler
     copyBtn.addEventListener("click", async () => {
       const text = codeBlock.textContent;
+      let copied = false;
+
       try {
         await navigator.clipboard.writeText(text);
-        statusEl.textContent = "Copied!";
-        setTimeout(() => (statusEl.textContent = ""), 1600);
-        return;
-      } catch (_) {}
-      try {
-        const ta = document.createElement("textarea");
-        ta.value = text;
-        ta.setAttribute("readonly", "");
-        ta.style.position = "fixed";
-        ta.style.opacity = "0";
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
-        statusEl.textContent = "Copied!";
-        setTimeout(() => (statusEl.textContent = ""), 1600);
-      } catch (e) {
-        statusEl.textContent = "Copy failed";
-        setTimeout(() => (statusEl.textContent = ""), 2000);
+        copied = true;
+      } catch (_) {
+        try {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.setAttribute("readonly", "");
+          ta.style.position = "fixed";
+          ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+          copied = true;
+        } catch (e) {}
+      }
+
+      if (copied) {
+        const oldText = copyBtn.textContent;
+        copyBtn.textContent = "Copied!";
+        setTimeout(() => { copyBtn.textContent = oldText; }, 1500);
       }
     });
 
