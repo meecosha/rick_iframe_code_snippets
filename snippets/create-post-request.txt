@@ -1,0 +1,37 @@
+POST /transactions/examplecompany/create
+Host: exchange.rick.ai
+Content-Type: application/json
+
+{
+	"transaction_id": "23d",
+	"user_id": "8070",
+	"ga_client_id": "1599344136.1453219348",
+	"ym_client_id": "1693556325685376429",
+	"deal_created_at": 1457452914,
+	"status": "paid",
+	"data_source": "website1.ru",
+	"revenue": 300,
+	"grossprofit": 30,
+	"items": [
+		{
+			"name": "Home cleaning",
+			"sku": "32354",
+			"price": "200",
+			"quantity": 1,
+			"category": "Cleaning"
+		},
+		{
+			"name": "Kitchen cleaning",
+			"sku": "32354",
+			"price": "100",
+			"quantity": 1,
+			"category": "Cleaning"
+		}
+	],
+	"contact": {
+		"phone_number": "+79871234567",
+		"phone_number_hash": "094c9957c54235232dde8a1064fd261be2af0fa7",
+		"email": "example@gmail.com",
+		"email_hash": "5d59f22ef88d9b6351d529e5c2c23156fdf3ba45"
+	}
+}
