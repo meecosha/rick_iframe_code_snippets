@@ -12,18 +12,24 @@ Content-Type: application/json
 	"data_source": "website1.ru",
 	"revenue": 300,
 	"grossprofit": 30,
+	"deal_url": "https://crm.website.com/23d",
+	"deal_method": "website",
+	"extra": {
+	    "manager": "Alex S",
+	    "deal_title": "Cleaning"
+  	},
 	"items": [
 		{
 			"name": "Home cleaning",
 			"sku": "32354",
-			"price": "200",
+			"price": 200,
 			"quantity": 1,
 			"category": "Cleaning"
 		},
 		{
 			"name": "Kitchen cleaning",
-			"sku": "32354",
-			"price": "100",
+			"sku": "32359",
+			"price": 100,
 			"quantity": 1,
 			"category": "Cleaning"
 		}
