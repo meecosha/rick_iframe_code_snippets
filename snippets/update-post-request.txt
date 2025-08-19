@@ -1,4 +1,4 @@
-POST /transactions/examplecompany/create
+POST /transactions/examplecompany/update
 Host: exchange.rick.ai
 Content-Type: application/json
 
