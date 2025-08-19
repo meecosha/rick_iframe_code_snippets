@@ -1,5 +1,4 @@
-POST /transactions/examplecompany/update
-Host: exchange.rick.ai
+POST https://exchange.rick.ai/transactions/exaplecompany/update
 Content-Type: application/json
 
 {
