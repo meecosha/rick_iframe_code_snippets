@@ -8,7 +8,7 @@ Content-Type: application/json
 	"ga_client_id": "1599344136.1453219348",
 	"ym_client_id": "1693556325685376429",
 	"deal_created_at": 1457452914,
-	"status": "paid",
+	"status": "unpaid",
 	"data_source": "website1.ru",
 	"revenue": 300,
 	"grossprofit": 30,
